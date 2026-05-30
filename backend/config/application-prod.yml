@@ -1,7 +1,7 @@
 --- ### 项目配置
 project:
   # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
-  url:  http://localhost:39000
+  url:  http://8.138.88.143:39000
   # 是否为生产环境
   production: true
 
@@ -15,7 +15,7 @@ spring.datasource:
   type: com.zaxxer.hikari.HikariDataSource
   url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
   username: ${DB_USER:root}
-  password: ${DB_PWD:gj1234}
+  password: ${DB_PWD:mysql1234}
   driver-class-name: com.mysql.cj.jdbc.Driver
 #  # PostgreSQL 配置
 #  postgresql:
@@ -27,9 +27,7 @@ spring.datasource:
   hikari:
     # 最大连接数量（默认 10，根据实际环境调整）
     # 注意：当连接达到上限，并且没有空闲连接可用时，获取连接将在超时前阻塞最多 connectionTimeout 毫秒
-    # 🚀 优化：降低连接池大小，节省 MySQL 连接内存
-    maximum-pool-size: 8
-    minimum-idle: 2
+    maximum-pool-size: 20
     # 获取连接超时时间（默认 30000 毫秒，30 秒）
     connection-timeout: 30000
     # 空闲连接最大存活时间（默认 600000 毫秒，10 分钟）
@@ -41,7 +39,7 @@ spring.datasource:
 ## Liquibase 配置
 spring.liquibase:
   # 是否启用
-  enabled: true
+  enabled: false
   # 配置文件路径
   change-log: classpath:/db/changelog/db.changelog-master.yaml
 
@@ -54,7 +52,7 @@ spring.data:
     # 端口（默认 6379）
     port: ${REDIS_PORT:6379}
     # 密码（未设置密码时请注释掉）
-#    password: ${REDIS_PWD:redis1234}
+    password: ${REDIS_PWD:redis1234}
     # 数据库索引
     database: ${REDIS_DB:0}
     # 连接超时时间
@@ -150,9 +148,18 @@ logging:
     path: ../logs
 
 --- ### 跨域配置
-# 关闭后端 CORS：前端通过 Nginx 同源代理（:39000），不需要后端额外 CORS
 continew-starter.web.cors:
-  enabled: false
+  enabled: true
+  # 配置允许跨域的域名
+  allowed-origins:
+    - ${project.url}
+  # 配置允许跨域的请求方式
+  allowed-methods: '*'
+  # 配置允许跨域的请求头
+  allowed-headers: '*'
+  # 配置允许跨域的响应头
+  exposed-headers: '*'
+
 --- ### 接口文档配置
 ## 接口文档增强配置
 knife4j:
@@ -165,7 +172,8 @@ continew-starter.messaging.websocket:
   path: /websocket
   # 配置允许跨域的域名
   allowed-origins:
-    - '*'
+    - ${project.url}
+
 
 
 --- ### Just Auth 配置

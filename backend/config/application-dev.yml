@@ -1,3 +1,4 @@
+
 --- ### 项目配置
 project:
   # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
@@ -36,7 +37,7 @@ spring.datasource:
 ## Liquibase 配置
 spring.liquibase:
   # 是否启用
-  enabled: true
+  enabled: false
   # 配置文件路径
   change-log: classpath:/db/changelog/db.changelog-master.yaml
 
@@ -49,7 +50,7 @@ spring.data:
     # 端口（默认 6379）
     port: ${REDIS_PORT:6379}
     # 密码（未设置密码时请注释掉）
-    password: ${REDIS_PWD:123456}
+#    password: ${REDIS_PWD:123456}
     # 数据库索引
     database: ${REDIS_DB:0}
     # 连接超时时间

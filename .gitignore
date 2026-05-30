@@ -38,6 +38,7 @@ continew-admin-ui/dist/
 # Backend lib jars (download via script)
 backend/lib/
 *.bak
+backend.bak2/
 
 # 大文件（不必要）
 continew-admin-ui/continew_admin.sql
