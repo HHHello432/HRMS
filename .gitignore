@@ -37,3 +37,4 @@ continew-admin-ui/dist/
 
 # Backend lib jars (download via script)
 backend/lib/
+*.bak
