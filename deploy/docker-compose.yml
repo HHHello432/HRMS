@@ -1,0 +1,128 @@
+networks:
+  hrms-net:
+    driver: bridge
+
+volumes:
+  hrms-redis-data:
+    name: hrms-redis-data
+  hrms-logs:
+    name: hrms-logs
+  hrms-mysql-data:
+    name: hrms-mysql-data
+
+services:
+  # ========== MySQL 8（独立数据库，不受旧项目影响） ==========
+  mysql:
+    image: mysql:8.0
+    container_name: hrms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: gj1234
+      MYSQL_DATABASE: continew_admin
+      MYSQL_USER: hrms
+      MYSQL_PASSWORD: hrms1234
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=20
+      - --innodb_buffer_pool_size=64M
+      - --innodb_log_buffer_size=4M
+      - --sort_buffer_size=256K
+      - --read_buffer_size=256K
+      - --thread_cache_size=8
+    volumes:
+      - hrms-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    networks:
+      - hrms-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+
+  # ========== Redis（轻量缓存，必需：Sa-Token + Redisson + JetCache 都依赖它） ==========
+  redis:
+    image: redis:7-alpine
+    container_name: hrms-redis
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no --maxmemory 32mb --maxmemory-policy allkeys-lru
+    volumes:
+      - hrms-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hrms-net
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+
+  # ========== 后端（Spring Boot + JVM 内存优化） ==========
+  server:
+    build:
+      context: /root/projects/HRMS
+      dockerfile: deploy/backend/Dockerfile
+    container_name: hrms-server
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # 数据库：连接自带的 hrms-mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: continew_admin
+      DB_USER: root
+      DB_PWD: gj1234
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PWD: ""
+    volumes:
+      - hrms-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:18000/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - hrms-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+
+  # ========== 前端（Nginx 托管静态文件 + API 代理） ==========
+  ui:
+    build:
+      context: /root/projects/HRMS
+      dockerfile: deploy/Dockerfile.ui
+    container_name: hrms-ui
+    restart: unless-stopped
+    ports:
+      - "39000:80"   # HRMS 前端访问端口
+    depends_on:
+      - server
+    networks:
+      - hrms-net
+    deploy:
+      resources:
+        limits:
+          memory: 32M
+          cpus: "0.25"
