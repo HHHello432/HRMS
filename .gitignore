@@ -38,3 +38,7 @@ continew-admin-ui/dist/
 # Backend lib jars (download via script)
 backend/lib/
 *.bak
+
+# 大文件（不必要）
+continew-admin-ui/continew_admin.sql
+continew-admin-ui/package-lock.json
