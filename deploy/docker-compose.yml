@@ -92,6 +92,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PWD: ${REDIS_PASSWORD:-}
+      # 前端访问地址（跨域放行 + 第三方登录回调前缀）
+      PROJECT_URL: ${PROJECT_URL:-http://127.0.0.1:39000}
     volumes:
       - hrms-logs:/app/logs
     healthcheck:
