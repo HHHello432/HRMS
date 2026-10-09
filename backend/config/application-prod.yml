@@ -1,7 +1,7 @@
 --- ### 项目配置
 project:
   # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
-  url:  http://8.138.88.143:39000
+  url:  ${PROJECT_URL:http://127.0.0.1:39000}
   # 是否为生产环境
   production: true
 
@@ -15,7 +15,7 @@ spring.datasource:
   type: com.zaxxer.hikari.HikariDataSource
   url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
   username: ${DB_USER:root}
-  password: ${DB_PWD:mysql1234}
+  password: ${DB_PWD:}
   driver-class-name: com.mysql.cj.jdbc.Driver
 #  # PostgreSQL 配置
 #  postgresql:
@@ -52,7 +52,7 @@ spring.data:
     # 端口（默认 6379）
     port: ${REDIS_PORT:6379}
     # 密码（未设置密码时请注释掉）
-    password: ${REDIS_PWD:redis1234}
+    password: ${REDIS_PWD:}
     # 数据库索引
     database: ${REDIS_DB:0}
     # 连接超时时间
@@ -249,7 +249,7 @@ snail-job:
   # 分组名
   group: ${SCHEDULE_GROUP:continew-admin}
   # 令牌
-  token: ${SCHEDULE_TOKEN:SJ_Wyz3dmsdbDOkDujOTSSoBjGQP1BMsVnj}
+  token: ${SCHEDULE_TOKEN:}
   ## 服务端配置（任务调度中心）
   server:
 
