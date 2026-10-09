@@ -13,6 +13,15 @@ BACKEND_DIR="${PROJECT_DIR}/backend"
 UI_DIR="${PROJECT_DIR}/continew-admin-ui"
 DOCKER_NET="docker-project_app-net"
 
+# 载入 deploy/.env（数据库密码等敏感配置，禁止硬编码进脚本）
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . "${SCRIPT_DIR}/.env"
+    set +a
+fi
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:?请先在 deploy/.env 中设置 MYSQL_ROOT_PASSWORD（可复制 .env.example）}"
+
 # 颜色
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -54,12 +63,12 @@ fi
 
 # 初始化数据库（仅首次）
 echo -e "${YELLOW}[3/5] 检查数据库初始化...${NC}"
-DB_EXISTS=$(docker exec mysql8 mysql -uroot -pgj1234 -N -e "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='continew_admin'" 2>/dev/null || echo "0")
+DB_EXISTS=$(docker exec mysql8 mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -N -e "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='continew_admin'" 2>/dev/null || echo "0")
 if [ "$DB_EXISTS" = "0" ]; then
     echo -e "  首次部署：导入数据库..."
-    docker exec mysql8 mysql -uroot -pgj1234 -e "CREATE DATABASE IF NOT EXISTS continew_admin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    docker exec mysql8 mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS continew_admin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
     docker cp "${UI_DIR}/continew_admin.sql" mysql8:/tmp/
-    docker exec mysql8 mysql -uroot -pgj1234 continew_admin < /tmp/continew_admin.sql
+    docker exec mysql8 mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" continew_admin < /tmp/continew_admin.sql
     echo -e "${GREEN}  ✓ 数据库初始化完成${NC}"
 else
     echo -e "${GREEN}  ✓ 数据库已就绪${NC}"
