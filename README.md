@@ -108,7 +108,10 @@ cp .env.example .env        # 填写数据库密码等（.env 不会进入版本
 | `MYSQL_USER` | 业务库账号，默认 `hrms` |
 | `MYSQL_PASSWORD` | 业务库密码（必填） |
 | `REDIS_PASSWORD` | Redis 密码（未设置可留空） |
+| `PROJECT_URL` | 前端访问地址（跨域放行 + 第三方登录回调），如 `http://your-server:39000` |
 | `HRMS_PROJECT_DIR` | 项目根目录，默认 `..`（即 `deploy/` 的上级目录） |
+
+> 本地开发若需要邮箱验证码，另需在运行环境提供 `MAIL_USERNAME`（发件邮箱）与 `MAIL_PASSWORD`（SMTP 授权码）。
 
 ## 说明
 
