@@ -17,10 +17,10 @@ services:
     container_name: hrms-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: gj1234
-      MYSQL_DATABASE: continew_admin
-      MYSQL_USER: hrms
-      MYSQL_PASSWORD: hrms1234
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required, see deploy/.env.example}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-continew_admin}
+      MYSQL_USER: ${MYSQL_USER:-hrms}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required, see deploy/.env.example}
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -72,7 +72,7 @@ services:
   # ========== 后端（Spring Boot + JVM 内存优化） ==========
   server:
     build:
-      context: /root/projects/HRMS
+      context: ${HRMS_PROJECT_DIR:-..}
       dockerfile: deploy/backend/Dockerfile
     container_name: hrms-server
     restart: unless-stopped
@@ -85,13 +85,13 @@ services:
       # 数据库：连接自带的 hrms-mysql
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: continew_admin
+      DB_NAME: ${MYSQL_DATABASE:-continew_admin}
       DB_USER: root
-      DB_PWD: gj1234
+      DB_PWD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required, see deploy/.env.example}
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PWD: ""
+      REDIS_PWD: ${REDIS_PASSWORD:-}
     volumes:
       - hrms-logs:/app/logs
     healthcheck:
@@ -111,7 +111,7 @@ services:
   # ========== 前端（Nginx 托管静态文件 + API 代理） ==========
   ui:
     build:
-      context: /root/projects/HRMS
+      context: ${HRMS_PROJECT_DIR:-..}
       dockerfile: deploy/Dockerfile.ui
     container_name: hrms-ui
     restart: unless-stopped
