@@ -189,8 +189,8 @@ spring.mail:
   # 根据需要更换
   host: smtp.qq.com
   port: 465
-  username: 1542252723@qq.com
-  password: bqcfizyyxytffhij
+  username: ${MAIL_USERNAME:}
+  password: ${MAIL_PASSWORD:}
   properties:
     mail:
       smtp:
@@ -279,7 +279,7 @@ snail-job:
   # 分组名
   group: ${SCHEDULE_GROUP:continew-admin}
   # 令牌
-  token: ${SCHEDULE_TOKEN:SJ_Wyz3dmsdbDOkDujOTSSoBjGQP1BMsVnj}
+  token: ${SCHEDULE_TOKEN:}
   ## 服务端配置（任务调度中心）
   server:
     # 服务端地址，若服务端集群部署则此处配置域名
